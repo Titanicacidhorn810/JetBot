@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JetBot Demo — Pomodoro Timer</title>
+<style>
+  :root {
+    --bg: #0f172a; --surface: #1e293b; --border: #334155;
+    --text: #f1f5f9; --muted: #94a3b8;
+    --work: #f43f5e; --work-glow: rgba(244,63,94,0.3);
+    --break: #22d3ee; --break-glow: rgba(34,211,238,0.3);
+    --long: #a78bfa; --long-glow: rgba(167,139,250,0.3);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; user-select: none; }
+
+  .container { width: 100%; max-width: 420px; padding: 24px; text-align: center; }
+
+  /* Mode tabs */
+  .modes { display: flex; gap: 8px; justify-content: center; margin-bottom: 40px; }
+  .mode-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+  .mode-btn:hover { border-color: var(--muted); }
+  .mode-btn.active[data-mode="work"] { background: var(--work); color: white; border-color: var(--work); }
+  .mode-btn.active[data-mode="break"] { background: var(--break); color: var(--bg); border-color: var(--break); }
+  .mode-btn.active[data-mode="long"] { background: var(--long); color: white; border-color: var(--long); }
+
+  /* Timer ring */
+  .timer-wrap { position: relative; width: 280px; height: 280px; margin: 0 auto 40px; }
+  .timer-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--surface); stroke-width: 6; }
+  .ring-progress { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
+  .timer-display { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .time { font-size: 64px; font-weight: 200; letter-spacing: -2px; font-variant-numeric: tabular-nums; }
+  .session-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Glow effect */
+  .glow { position: absolute; inset: 20px; border-radius: 50%; filter: blur(40px); opacity: 0; transition: opacity 0.5s; pointer-events: none; }
+  .running .glow { opacity: 1; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+
+  /* Controls */
+  .controls { display: flex; gap: 16px; justify-content: center; margin-bottom: 32px; }
+  .ctrl-btn { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface); color: var(--text); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .ctrl-btn:hover { border-color: var(--text); transform: scale(1.05); }
+  .ctrl-btn.primary { width: 72px; height: 72px; font-size: 24px; }
+  .ctrl-btn.primary[data-mode="work"] { border-color: var(--work); color: var(--work); }
+  .ctrl-btn.primary[data-mode="break"] { border-color: var(--break); color: var(--break); }
+  .ctrl-btn.primary[data-mode="long"] { border-color: var(--long); color: var(--long); }
+
+  /* Stats */
+  .stats { display: flex; gap: 24px; justify-content: center; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 24px; font-weight: 600; }
+  .stat .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+  /* Settings */
+  .settings { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .settings-row label { font-size: 13px; color: var(--muted); }
+  .settings-row input { width: 64px; text-align: center; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px; font-size: 14px; }
+  .settings-row input:focus { outline: none; border-color: var(--accent, #38bdf8); }
+
+  .source { position: fixed; bottom: 16px; color: var(--muted); font-size: 12px; }
+  .source a { color: #38bdf8; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <div class="modes">
+    <button class="mode-btn active" data-mode="work" onclick="setMode('work')">Focus</button>
+    <button class="mode-btn" data-mode="break" onclick="setMode('break')">Break</button>
+    <button class="mode-btn" data-mode="long" onclick="setMode('long')">Long Break</button>
+  </div>
+
+  <div class="timer-wrap" id="timerWrap">
+    <div class="glow" id="glow"></div>
+    <svg class="timer-ring" viewBox="0 0 280 280">
+      <circle class="ring-bg" cx="140" cy="140" r="126" />
+      <circle class="ring-progress" id="progress" cx="140" cy="140" r="126"
+        stroke-dasharray="792" stroke-dashoffset="0" />
+    </svg>
+    <div class="timer-display">
+      <div class="time" id="timeDisplay">25:00</div>
+      <div class="session-label" id="sessionLabel">Session #1</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" onclick="resetTimer()" title="Reset">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+    </button>
+    <button class="ctrl-btn primary" id="playBtn" data-mode="work" onclick="toggleTimer()" title="Start/Pause">
+      <svg id="playIcon" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+    </button>
+    <button class="ctrl-btn" onclick="skipTimer()" title="Skip">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,4 15,12 5,20" fill="currentColor"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+    </button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="statSessions">0</div><div class="label">Sessions</div></div>
+    <div class="stat"><div class="num" id="statMinutes">0</div><div class="label">Minutes</div></div>
+    <div class="stat"><div class="num" id="statStreak">0</div><div class="label">Streak</div></div>
+  </div>
+
+  <div class="settings">
+    <div class="settings-row">
+      <label>Focus (min)</label>
+      <input type="number" id="setWork" value="25" min="1" max="90" onchange="updateSettings()">
+    </div>
+    <div class="settings-row">
+      <label>Break (min)</label>
+      <input type="number" id="setBreak" value="5" min="1" max="30" onchange="updateSettings()">
+    </div>
+    <div class="settings-row">
+      <label>Long break (min)</label>
+      <input type="number" id="setLong" value="15" min="5" max="60" onchange="updateSettings()">
+    </div>
+  </div>
+</div>
+
+<div class="source">
+  Built with <a href="https://hongxin.github.io/jetbot/" target="_blank">JetBot</a> — just say "make me a Pomodoro timer"
+</div>
+
+<script>
+const CIRCUMFERENCE = 2 * Math.PI * 126; // ~792
+
+let config = { work: 25, break: 5, long: 15 };
+let mode = 'work';
+let totalSeconds = config.work * 60;
+let remaining = totalSeconds;
+let running = false;
+let interval = null;
+let sessions = 0;
+let totalMinutes = 0;
+let streak = 0;
+
+const $ = id => document.getElementById(id);
+const colors = { work: '#f43f5e', break: '#22d3ee', long: '#a78bfa' };
+const glows  = { work: 'var(--work-glow)', break: 'var(--break-glow)', long: 'var(--long-glow)' };
+
+function setMode(m) {
+  mode = m;
+  stopTimer();
+  totalSeconds = config[m] * 60;
+  remaining = totalSeconds;
+  render();
+
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  $('playBtn').dataset.mode = m;
+  $('progress').style.stroke = colors[m];
+  $('glow').style.background = colors[m];
+}
+
+function toggleTimer() {
+  running ? stopTimer() : startTimer();
+}
+
+function startTimer() {
+  if (remaining <= 0) return;
+  running = true;
+  $('timerWrap').classList.add('running');
+  $('playIcon').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+  interval = setInterval(tick, 1000);
+}
+
+function stopTimer() {
+  running = false;
+  $('timerWrap').classList.remove('running');
+  $('playIcon').innerHTML = '<polygon points="6,3 20,12 6,21"/>';
+  clearInterval(interval);
+}
+
+function resetTimer() {
+  stopTimer();
+  remaining = totalSeconds;
+  render();
+}
+
+function skipTimer() {
+  stopTimer();
+  onComplete();
+}
+
+function tick() {
+  remaining--;
+  if (remaining <= 0) {
+    remaining = 0;
+    render();
+    stopTimer();
+    onComplete();
+    return;
+  }
+  render();
+}
+
+function onComplete() {
+  // Notification sound (Web Audio)
+  try {
+    const ctx = new AudioContext();
+    [0, 200, 400].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = mode === 'work' ? 880 : 660;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + delay/1000);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay/1000 + 0.3);
+      osc.start(ctx.currentTime + delay/1000);
+      osc.stop(ctx.currentTime + delay/1000 + 0.3);
+    });
+  } catch {}
+
+  if (mode === 'work') {
+    sessions++;
+    totalMinutes += config.work;
+    streak++;
+    // Auto switch to break
+    setMode(sessions % 4 === 0 ? 'long' : 'break');
+  } else {
+    setMode('work');
+  }
+  renderStats();
+  $('sessionLabel').textContent = `Session #${sessions + 1}`;
+}
+
+function render() {
+  const min = Math.floor(remaining / 60);
+  const sec = remaining % 60;
+  $('timeDisplay').textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+
+  const fraction = remaining / totalSeconds;
+  const offset = CIRCUMFERENCE * (1 - fraction);
+  $('progress').style.strokeDashoffset = offset;
+
+  // Update title
+  document.title = `${$('timeDisplay').textContent} — ${mode === 'work' ? 'Focus' : mode === 'break' ? 'Break' : 'Long Break'}`;
+}
+
+function renderStats() {
+  $('statSessions').textContent = sessions;
+  $('statMinutes').textContent = totalMinutes;
+  $('statStreak').textContent = streak;
+}
+
+function updateSettings() {
+  config.work  = parseInt($('setWork').value) || 25;
+  config.break = parseInt($('setBreak').value) || 5;
+  config.long  = parseInt($('setLong').value) || 15;
+  if (!running) {
+    totalSeconds = config[mode] * 60;
+    remaining = totalSeconds;
+    render();
+  }
+}
+
+// Init
+$('progress').style.strokeDasharray = CIRCUMFERENCE;
+$('progress').style.stroke = colors.work;
+render();
+renderStats();
+</script>
+</body>
+</html>

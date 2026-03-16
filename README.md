@@ -25,6 +25,15 @@ JetBot 是一个完全运行在浏览器中的 AI 编程助手。无需后端服
               └────────────────┘
 ```
 
+## Demos
+
+See what JetBot can build — each demo was generated entirely in the browser:
+
+- **[SaaS Revenue Dashboard](https://hongxin.github.io/jetbot/demos/dashboard.html)** — Drag a CSV, get an interactive ECharts dashboard in 30 seconds
+- **[Pomodoro Timer](https://hongxin.github.io/jetbot/demos/pomodoro.html)** — Say "make me a Pomodoro timer", get a fully functional app with sound and animations
+
+> The core promise: **Open browser -> type one sentence -> get something that works -> export it.**
+
 ## Features
 
 ### Agentic Loop
