@@ -7,7 +7,7 @@ import { StatusBar } from './components/StatusBar';
 import { PermissionDialog } from './components/PermissionDialog';
 
 export default function App() {
-  const isConfigured = useConfigStore(s => s.apiKey.length > 0);
+  const isConfigured = useConfigStore(s => s.validate().valid);
   const agent = useAgentStore(s => s.agent);
 
   if (!isConfigured || !agent) {

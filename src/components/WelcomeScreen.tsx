@@ -3,6 +3,15 @@ import { useConfigStore } from '../store/configStore';
 import { useAgentStore } from '../store/agentStore';
 import { useT } from '../lib/i18n';
 
+const PROVIDERS = ['openai', 'deepseek', 'ollama', 'custom'] as const;
+const PROVIDER_LABELS: Record<string, string> = {
+  openai: 'OpenAI',
+  deepseek: 'DeepSeek',
+  ollama: 'Ollama',
+  custom: 'Custom',
+};
+const KEY_OPTIONAL = new Set(['ollama']);
+
 export function WelcomeScreen() {
   const config = useConfigStore();
   const initAgent = useAgentStore(s => s.initAgent);
@@ -10,8 +19,10 @@ export function WelcomeScreen() {
   const locale = useConfigStore(s => s.locale);
   const t = useT();
 
-  // force re-read of t when locale changes
   void locale;
+
+  const isKeyOptional = KEY_OPTIONAL.has(config.provider);
+  const canStart = config.validate().valid;
 
   const handleStart = () => {
     const { valid, errors } = config.validate();
@@ -25,7 +36,6 @@ export function WelcomeScreen() {
   return (
     <div className="flex-1 flex items-center justify-center p-6">
       <div className="max-w-sm w-full space-y-6">
-        {/* Language toggle */}
         <div className="flex justify-end">
           <button
             onClick={() => config.setLocale(locale === 'en' ? 'zh' : 'en')}
@@ -46,7 +56,7 @@ export function WelcomeScreen() {
           <div>
             <label className="text-xs font-medium text-[hsl(var(--muted-foreground))] mb-1.5 block">{t('welcome.provider')}</label>
             <div className="flex gap-2">
-              {['openai', 'deepseek', 'custom'].map(p => (
+              {PROVIDERS.map(p => (
                 <button
                   key={p}
                   onClick={() => config.applyPreset(p)}
@@ -56,35 +66,43 @@ export function WelcomeScreen() {
                       : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]'
                   }`}
                 >
-                  {p === 'openai' ? 'OpenAI' : p === 'deepseek' ? 'DeepSeek' : 'Custom'}
+                  {PROVIDER_LABELS[p]}
                 </button>
               ))}
             </div>
           </div>
 
-          <div>
-            <label className="text-xs font-medium text-[hsl(var(--muted-foreground))] mb-1 block">{t('welcome.apiKey')}</label>
-            <div className="flex gap-2">
-              <input
-                type={showKey ? 'text' : 'password'}
-                value={config.apiKey}
-                onChange={e => config.setApiKey(e.target.value)}
-                className="flex-1 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--ring))]"
-                placeholder="sk-..."
-              />
-              <button
-                onClick={() => setShowKey(!showKey)}
-                className="text-xs text-[hsl(var(--muted-foreground))]"
-              >
-                {showKey ? t('welcome.hide') : t('welcome.show')}
-              </button>
+          {!isKeyOptional && (
+            <div>
+              <label className="text-xs font-medium text-[hsl(var(--muted-foreground))] mb-1 block">{t('welcome.apiKey')}</label>
+              <div className="flex gap-2">
+                <input
+                  type={showKey ? 'text' : 'password'}
+                  value={config.apiKey}
+                  onChange={e => config.setApiKey(e.target.value)}
+                  className="flex-1 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--ring))]"
+                  placeholder="sk-..."
+                />
+                <button
+                  onClick={() => setShowKey(!showKey)}
+                  className="text-xs text-[hsl(var(--muted-foreground))]"
+                >
+                  {showKey ? t('welcome.hide') : t('welcome.show')}
+                </button>
+              </div>
+              <p className="text-[10px] text-[hsl(var(--muted-foreground))] mt-1">
+                {t('welcome.apiKeyHint')}
+              </p>
             </div>
-            <p className="text-[10px] text-[hsl(var(--muted-foreground))] mt-1">
-              {t('welcome.apiKeyHint')}
-            </p>
-          </div>
+          )}
 
-          {config.provider === 'custom' && (
+          {isKeyOptional && (
+            <div className="bg-[hsl(var(--muted))] rounded-xl px-4 py-3 text-xs text-[hsl(var(--muted-foreground))]">
+              {t('welcome.ollamaHint')}
+            </div>
+          )}
+
+          {(config.provider === 'custom' || config.provider === 'ollama') && (
             <>
               <div>
                 <label className="text-xs font-medium text-[hsl(var(--muted-foreground))] mb-1 block">{t('welcome.baseUrl')}</label>
@@ -102,6 +120,7 @@ export function WelcomeScreen() {
                   value={config.model}
                   onChange={e => config.setModel(e.target.value)}
                   className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[hsl(var(--ring))]"
+                  placeholder={config.provider === 'ollama' ? 'qwen2.5:7b' : ''}
                 />
               </div>
             </>
@@ -110,7 +129,7 @@ export function WelcomeScreen() {
 
         <button
           onClick={handleStart}
-          disabled={!config.apiKey}
+          disabled={!canStart}
           className="w-full py-3 rounded-xl bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-30"
         >
           {t('welcome.start')}

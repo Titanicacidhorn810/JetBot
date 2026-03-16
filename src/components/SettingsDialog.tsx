@@ -55,7 +55,7 @@ export function SettingsDialog({ open, onClose }: Props) {
           <div>
             <label className="text-xs font-medium text-[hsl(var(--muted-foreground))] mb-1 block">{t('settings.provider')}</label>
             <div className="flex gap-2">
-              {['openai', 'deepseek', 'custom'].map(p => (
+              {['openai', 'deepseek', 'ollama', 'custom'].map(p => (
                 <button
                   key={p}
                   onClick={() => config.applyPreset(p)}

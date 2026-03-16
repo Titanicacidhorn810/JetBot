@@ -10,8 +10,12 @@ export interface ProviderPreset {
 const PRESETS: Record<string, ProviderPreset> = {
   openai: { provider: 'openai', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o' },
   deepseek: { provider: 'deepseek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+  ollama: { provider: 'ollama', baseUrl: 'http://localhost:11434/v1', model: 'qwen2.5:7b' },
   custom: { provider: 'custom', baseUrl: '', model: '' },
 };
+
+// Providers that don't require an API key
+const KEY_OPTIONAL_PROVIDERS = new Set(['ollama']);
 
 interface ConfigState {
   provider: string;
@@ -75,7 +79,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   validate: () => {
     const state = get();
     const errors: string[] = [];
-    if (!state.apiKey) errors.push('API Key is required');
+    if (!state.apiKey && !KEY_OPTIONAL_PROVIDERS.has(state.provider)) errors.push('API Key is required');
     if (!state.baseUrl) errors.push('Base URL is required');
     if (!state.model) errors.push('Model is required');
     return { valid: errors.length === 0, errors };

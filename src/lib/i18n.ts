@@ -17,6 +17,10 @@ const translations = {
   'welcome.start': { en: 'Get Started', zh: '开始使用' },
   'welcome.show': { en: 'Show', zh: '显示' },
   'welcome.hide': { en: 'Hide', zh: '隐藏' },
+  'welcome.ollamaHint': {
+    en: 'Ollama runs locally — no API key needed. Make sure Ollama is running on your machine.',
+    zh: 'Ollama 在本地运行，无需 API 密钥。请确保 Ollama 已在本机启动。',
+  },
 
   // StatusBar
   'status.ready': { en: 'Ready', zh: '就绪' },

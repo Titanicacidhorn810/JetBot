@@ -46,12 +46,15 @@ export class OpenAICompatibleClient implements LLMClient {
 
     while (true) {
       try {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        if (this.config.apiKey) {
+          headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+        }
         response = await fetch(url, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.config.apiKey}`,
-          },
+          headers,
           body: JSON.stringify(body),
           signal: controller.signal,
         });
