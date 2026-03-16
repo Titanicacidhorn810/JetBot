@@ -42,7 +42,10 @@ export function createRenderHtml(): Tool {
     requires: ['dom'],
 
     async execute(params) {
-      const html = params.html as string;
+      const html = params.html as string | undefined;
+      if (!html || typeof html !== 'string' || html.trim().length === 0) {
+        throw new Error('Missing required parameter "html". Provide a complete HTML string to render.');
+      }
       const title = (params.title as string) || 'Preview';
       const height = (params.height as number) || 300;
 

@@ -27,6 +27,9 @@ export function createHttpGet(proxyUrl?: string): Tool {
     },
     permission: 'risky',
     async execute(params) {
+      if (!params.url || typeof params.url !== 'string') {
+        throw new Error('Missing required parameter "url". Provide the URL to fetch.');
+      }
       const targetUrl = params.url as string;
 
       // Build list of URLs to try: user proxy → direct → public CORS proxies

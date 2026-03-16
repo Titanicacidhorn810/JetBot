@@ -20,6 +20,8 @@ export class AgenticLoop {
   private abortController: AbortController | null = null;
   private maxIterations = 100;
   private maxConsecutiveFailures = 3;
+  /** Track recent tool errors to detect repeat-failure patterns */
+  private recentToolErrors: Array<{ name: string; error: string }> = [];
 
   async run(
     llm: LLMClient,
@@ -37,6 +39,7 @@ export class AgenticLoop {
     let totalTokens = 0;
     let consecutiveFailures = 0;
 
+    this.recentToolErrors = [];
     this.emit(onEvent, 'loop:start', {});
     log.info('loop start', { model: llm.model() });
 
@@ -102,9 +105,15 @@ export class AgenticLoop {
         totalToolCalls++;
         let params: Record<string, unknown>;
         try {
-          params = JSON.parse(tc.arguments);
+          params = tc.arguments ? JSON.parse(tc.arguments) : {};
         } catch {
-          params = {};
+          // Malformed arguments — tell the LLM so it can fix the call
+          log.warn('malformed tool arguments', { name: tc.name, args: tc.arguments?.slice(0, 100) });
+          const errMsg = `Error: Could not parse tool arguments as JSON. You sent: ${(tc.arguments || '').slice(0, 200)}. Please provide valid JSON parameters.`;
+          context.addToolResult(tc.id, errMsg, true);
+          this.emit(onEvent, 'tool:error', { id: tc.id, name: tc.name, error: 'Malformed JSON arguments' });
+          consecutiveFailures++;
+          continue;
         }
 
         log.info('tool call', { name: tc.name, id: tc.id });
@@ -132,7 +141,17 @@ export class AgenticLoop {
           this.emit(onEvent, 'tool:result', { id: tc.id, name: tc.name, result, isError: false });
           consecutiveFailures = 0;
         } catch (err: any) {
-          const errMsg = `Error: ${err.message}`;
+          // Detect repeat-failure pattern: same tool + same error seen before
+          const errorKey = `${tc.name}:${err.message}`;
+          const repeatCount = this.recentToolErrors.filter(e => `${e.name}:${e.error}` === errorKey).length;
+          this.recentToolErrors.push({ name: tc.name, error: err.message });
+
+          let errMsg = `Error: ${err.message}`;
+          if (repeatCount > 0) {
+            errMsg += `\n\n⚠ This is the same error you got before (${repeatCount + 1}x). Do NOT retry with the same parameters. Either fix the parameters, use a different approach, or skip this step entirely.`;
+            log.warn('repeat tool failure detected', { name: tc.name, repeatCount: repeatCount + 1 });
+          }
+
           log.error('tool error', { name: tc.name, error: err.message });
           context.addToolResult(tc.id, errMsg, true);
           this.emit(onEvent, 'tool:error', { id: tc.id, name: tc.name, error: err.message });

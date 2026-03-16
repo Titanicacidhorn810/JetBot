@@ -20,6 +20,12 @@ export function createWriteFile(fs: VirtualFS): Tool {
     },
     permission: 'risky',
     async execute(params) {
+      if (!params.path || typeof params.path !== 'string') {
+        throw new Error('Missing required parameter "path". Provide the absolute path to the file to write.');
+      }
+      if (params.content === undefined || params.content === null || typeof params.content !== 'string') {
+        throw new Error('Missing required parameter "content". Provide the content to write to the file.');
+      }
       await fs.writeFile(params.path as string, params.content as string);
       return `File written: ${params.path} (${(params.content as string).length} bytes)`;
     },

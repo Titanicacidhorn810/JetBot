@@ -36,6 +36,9 @@ export function createJsEval(): Tool {
     requires: ['js-eval'],
 
     async execute(params) {
+      if (!params.code || typeof params.code !== 'string') {
+        throw new Error('Missing required parameter "code". Provide JavaScript code to execute.');
+      }
       const code = params.code as string;
       const logs: string[] = [];
       const maxOutputLength = 8192;

@@ -19,6 +19,9 @@ export function createShellExecute(fs: VirtualFS): Tool {
     },
     permission: 'dangerous',
     async execute(params) {
+      if (!params.command || typeof params.command !== 'string') {
+        throw new Error('Missing required parameter "command". Provide a shell command to execute.');
+      }
       const command = (params.command as string).trim();
       const parts = parseCommand(command);
       if (parts.length === 0) throw new Error('Empty command');

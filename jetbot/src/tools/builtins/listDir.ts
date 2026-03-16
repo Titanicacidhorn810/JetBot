@@ -18,6 +18,9 @@ export function createListDir(fs: VirtualFS): Tool {
     },
     permission: 'safe',
     async execute(params) {
+      if (params.path !== undefined && typeof params.path !== 'string') {
+        throw new Error('Parameter "path" must be a string. Provide a directory path to list.');
+      }
       const path = (params.path as string) || '/workspace';
       const entries = await fs.listDir(path);
       if (entries.length === 0) return `(empty directory: ${path})`;

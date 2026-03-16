@@ -20,6 +20,9 @@ export function createSearchText(fs: VirtualFS): Tool {
     },
     permission: 'safe',
     async execute(params) {
+      if (!params.pattern || typeof params.pattern !== 'string') {
+        throw new Error('Missing required parameter "pattern". Provide a regex pattern to search for.');
+      }
       const pattern = params.pattern as string;
       const basePath = (params.path as string) || '/workspace';
       const results = await fs.search(pattern, basePath);

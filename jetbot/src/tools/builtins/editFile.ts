@@ -21,6 +21,15 @@ export function createEditFile(fs: VirtualFS): Tool {
     },
     permission: 'risky',
     async execute(params) {
+      if (!params.path || typeof params.path !== 'string') {
+        throw new Error('Missing required parameter "path". Provide the absolute path to the file to edit.');
+      }
+      if (!params.old_text || typeof params.old_text !== 'string') {
+        throw new Error('Missing required parameter "old_text". Provide the exact text to find and replace.');
+      }
+      if (params.new_text === undefined || params.new_text === null || typeof params.new_text !== 'string') {
+        throw new Error('Missing required parameter "new_text". Provide the replacement text.');
+      }
       const path = params.path as string;
       const oldText = params.old_text as string;
       const newText = params.new_text as string;

@@ -21,6 +21,9 @@ export function createReadFile(fs: VirtualFS): Tool {
     },
     permission: 'safe',
     async execute(params) {
+      if (!params.path || typeof params.path !== 'string') {
+        throw new Error('Missing required parameter "path". Provide the absolute path to the file to read.');
+      }
       const path = params.path as string;
       const content = await fs.readFile(path);
       const lines = content.split('\n');
