@@ -223,4 +223,262 @@ Provide specific line references and corrected code.`,
 - Use color meaningfully, not decoratively
 - Keep it simple — one clear message per chart`,
   },
+  {
+    name: 'decision',
+    description: 'Structured decision analysis using AHP (Analytic Hierarchy Process)',
+    trigger: 'decide, choose, compare, select, trade-off, which one, pros cons, evaluate alternatives',
+    instructions: `# Decision Analysis Mode (Doc2AHP)
+
+Structured multi-criteria decision analysis using the Analytic Hierarchy Process.
+Turn vague "which should I pick?" into quantified, defensible recommendations.
+
+## When to Use
+- 3+ alternatives with multi-dimensional trade-offs
+- Architecture, tech stack, library, or tool selection
+- Decisions requiring team justification or audit trail
+
+## When NOT to Use
+- Only 2 options → simple pros/cons
+- Single dimension (e.g. pure cost) → compare directly
+- Urgent → trust intuition, validate later
+
+---
+
+## Step 0: Input Mode Selection
+
+Ask the user which mode:
+
+**Mode A — Document-Grounded** (recommended for high-stakes):
+- Extract criteria from user-provided docs, URLs, or web search
+- Every criterion tagged with source: \`[Source: doc, section]\`
+- Full traceability for team buy-in and compliance
+
+**Mode B — Quick Analysis** (for rapid exploration):
+- Generate criteria from domain knowledge
+- Marked as "Source: domain knowledge"
+- Faster but less traceable
+
+---
+
+## Step 1: Decision Framework Construction
+
+1. **Define goal** in one sentence
+2. **List alternatives** (3-7, pre-screen if more)
+3. **Build hierarchy**: Goal → Criteria (≤7) → Sub-criteria (≤7 each)
+4. **Cognitive constraints** (Miller's Law):
+   - ≤ 7 criteria per level
+   - ≤ 3 hierarchy depth
+   - Each criterion must be independent, measurable, relevant
+
+Example hierarchy:
+\`\`\`
+Select Best Framework
+├── Technical Fit (features, performance, ecosystem)
+├── Team Factors (learning curve, skills, hiring)
+├── Engineering Quality (maintainability, testing, docs)
+└── Business Factors (license, cost, vendor lock-in)
+\`\`\`
+
+Present hierarchy and **confirm with user** before proceeding.
+
+---
+
+## Step 2: Multi-Perspective Evaluation
+
+Evaluate from 3-5 perspectives:
+
+| Perspective | Focus |
+|------------|-------|
+| Technical Expert | Performance, architecture, tech debt |
+| Business Analyst | ROI, market fit, business value |
+| Ops Engineer | Deployment, monitoring, fault recovery |
+| End User | Experience, feature completeness |
+| Team Lead | Learning cost, productivity, hiring |
+
+For each perspective, create pairwise comparison matrix using **Saaty 1-9 scale**:
+- 1 = Equal importance
+- 3 = Slightly more important
+- 5 = Clearly more important
+- 7 = Strongly more important
+- 9 = Extremely more important
+
+Show each matrix explicitly.
+
+---
+
+## Step 3: Consensus Aggregation
+
+1. **Geometric mean** across perspectives for each pair:
+   \`consensus_ij = (a_ij_p1 × a_ij_p2 × ... × a_ij_pK)^(1/K)\`
+2. Apply user priority constraints (e.g. "performance first" → boost related criteria 1-2 levels)
+3. Compute normalized weights per criterion
+4. Present weight distribution as table + bar chart description
+
+---
+
+## Step 4: Consistency Check
+
+1. **Transitivity**: If A > B and B > C, then A must > C
+2. Flag contradictions, propose corrections
+3. Recompute weights after fixes
+4. Brief note on confidence level
+
+---
+
+## Step 5: Alternative Scoring
+
+1. Score each alternative per sub-criterion (1-10 scale)
+2. Compute weighted sum: \`Score = Σ(weight_i × score_i)\`
+3. **Sensitivity analysis**: adjust top-2 weights by ±20%, check if ranking changes
+4. Present as ranked table
+
+---
+
+## Step 6: Decision Report
+
+Output structured report:
+
+\`\`\`markdown
+# Decision: [Goal]
+
+## Recommendation
+**[Winner]** — Score: X.XX / 10
+
+## Ranking
+| Rank | Alternative | Score | Key Strength |
+|------|------------|-------|-------------|
+| 1    | ...        | ...   | ...         |
+
+## Weight Distribution
+[Criteria weights table]
+
+## Key Trade-offs
+- Alt A leads in X but trails in Y
+- Sensitivity: if Z weight +20%, ranking changes to...
+
+## Risks & Mitigations
+[Top risks of recommended option]
+
+## Next Steps
+[Actionable items]
+\`\`\`
+
+---
+
+## Rules
+- Always show your math — transparency builds trust
+- Confirm hierarchy with user before computing
+- Acknowledge uncertainty explicitly
+- If user overrides a weight, respect it and note the adjustment
+- For simple decisions (≤3 criteria, ≤3 alternatives), compress Steps 2-4 into one pass`,
+  },
+  {
+    name: 'security',
+    description: 'Security audit — OWASP Top 10, threat modeling, hardening',
+    trigger: 'security, vulnerability, audit, hardening, OWASP, threat',
+    instructions: `# Security Audit Mode
+
+## Scope First
+Ask: What are we securing? (API endpoint, full app, specific module, deployment config)
+
+## Systematic Check (OWASP Top 10 + extras)
+
+### 1. Injection (SQLi, XSS, Command)
+- User input flows → trace from entry to output
+- Check: parameterized queries, output encoding, command escaping
+- Template literals with user data? \`dangerouslySetInnerHTML\`?
+
+### 2. Broken Authentication
+- Session management, token storage, password handling
+- JWT validation, expiry, refresh flow
+- Rate limiting on auth endpoints
+
+### 3. Sensitive Data Exposure
+- Secrets in code, logs, or git history
+- HTTPS enforcement, CORS policy
+- API keys in frontend code?
+
+### 4. Broken Access Control
+- Authorization checks on every endpoint
+- IDOR (Insecure Direct Object References)
+- Privilege escalation paths
+
+### 5. Security Misconfiguration
+- Default credentials, debug mode in production
+- Unnecessary ports/services exposed
+- Missing security headers (CSP, HSTS, X-Frame-Options)
+
+### 6. Dependency Vulnerabilities
+- Known CVEs in dependencies
+- Outdated packages with security patches
+- Lock file integrity
+
+### 7. Additional Checks
+- Path traversal (\`../\` in file operations)
+- SSRF (Server-Side Request Forgery)
+- Regex DoS (ReDoS)
+- Race conditions in concurrent operations
+
+## Output Format
+For each finding:
+\`\`\`
+**[SEVERITY]** Title
+- Location: file:line
+- Risk: what could happen
+- Fix: specific code change
+- Verify: how to confirm the fix works
+\`\`\`
+
+Severity: CRITICAL / HIGH / MEDIUM / LOW / INFO`,
+  },
+  {
+    name: 'perf',
+    description: 'Performance analysis — find bottlenecks, optimize hot paths',
+    trigger: 'slow, performance, optimize, bottleneck, latency, memory',
+    instructions: `# Performance Analysis Mode
+
+## Step 1: Measure Before Optimizing
+- Never optimize without evidence of a bottleneck
+- Ask: What is slow? How slow? What is the target?
+- Identify the hot path (the 20% of code causing 80% of time)
+
+## Step 2: Classify the Bottleneck
+
+| Type | Symptoms | Tools |
+|------|----------|-------|
+| CPU-bound | High CPU, slow computation | Profiler, flame graphs |
+| I/O-bound | Waiting on network/disk | Async tracing, waterfall |
+| Memory | High RSS, GC pauses, OOM | Heap snapshots |
+| Render | Janky UI, dropped frames | Performance timeline |
+| Algorithm | O(n²) where O(n) works | Code inspection |
+
+## Step 3: Common Fixes by Category
+
+### Algorithm & Data Structure
+- O(n²) → O(n log n) or O(n) with better data structure
+- Repeated lookups → Map/Set instead of array scan
+- String concatenation in loop → array push + join
+
+### I/O & Network
+- Sequential requests → Promise.all() for independent calls
+- Missing caching → add memoization or HTTP cache
+- Large payloads → pagination, compression, selective fields
+
+### Rendering (Frontend)
+- Excessive re-renders → React.memo, useMemo, useCallback
+- Layout thrashing → batch DOM reads/writes
+- Large lists → virtualization (windowing)
+- Heavy computation → Web Worker
+
+### Memory
+- Unbounded caches → LRU with max size
+- Event listener leaks → cleanup in useEffect/destroy
+- Large object retention → WeakRef/WeakMap
+
+## Rules
+- One optimization at a time — measure after each
+- Readability > micro-optimization unless proven bottleneck
+- Document WHY the optimization exists (future maintainers)
+- If < 2x improvement, consider if complexity is worth it`,
+  },
 ];
