@@ -110,8 +110,8 @@ const translations = {
   'schedule.addUsage': { en: 'Usage: /schedule add <name> <trigger> <prompt>', zh: '用法：/schedule add <名称> <触发规则> <提示词>' },
 
   // Auto mode
-  'auto.on': { en: 'Autonomous mode enabled. Heartbeat every 5 minutes.', zh: '自主模式已开启。每 5 分钟心跳一次。' },
-  'auto.off': { en: 'Autonomous mode disabled.', zh: '自主模式已关闭。' },
+  'auto.on': { en: 'Autonomous mode ON. Risky tools auto-approved; dangerous tools prompt once then remembered. Heartbeat every 5 min.', zh: '自主模式已开启。风险工具自动批准，危险工具首次确认后记忆。每 5 分钟心跳。' },
+  'auto.off': { en: 'Autonomous mode OFF. Standard permission prompts restored.', zh: '自主模式已关闭。恢复标准权限确认。' },
 
   // Skills
   'skill.activated': { en: 'Skill activated', zh: '技能已激活' },

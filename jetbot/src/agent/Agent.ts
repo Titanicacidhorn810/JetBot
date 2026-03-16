@@ -190,7 +190,7 @@ export class Agent {
         this.context.clear();
         return { response: t('cmd.cleared') };
       case '/status':
-        return { response: `Model: ${this.llm.model()}\nTurns: ${this.context.turnCount()}\nTokens: ~${this.context.currentTokenEstimate()}\nPlan Mode: ${this.planMode.isActive() ? this.planMode.currentPhase() : 'off'}\nSkill: ${this.skills.getActiveName() ?? 'none'}\nRuntime: ${this.runtime.type} (${this.runtime.capabilities.size} capabilities, ${this.tools.list().length} tools)` };
+        return { response: `Model: ${this.llm.model()}\nTurns: ${this.context.turnCount()}\nTokens: ~${this.context.currentTokenEstimate()}\nPlan Mode: ${this.planMode.isActive() ? this.planMode.currentPhase() : 'off'}\nSkill: ${this.skills.getActiveName() ?? 'none'}\nAuto Mode: ${this.autoMode ? 'on (risky=auto, dangerous=once)' : 'off'}\nRuntime: ${this.runtime.type} (${this.runtime.capabilities.size} capabilities, ${this.tools.list().length} tools)` };
       case '/runtime':
         return { response: this.runtimeInfo() };
       case '/model':
@@ -301,6 +301,7 @@ export class Agent {
     const sub = args[0];
     if (sub === 'on') {
       this.autoMode = true;
+      this.permission.autoMode = true;
       const config: HeartbeatConfig = {
         enabled: true,
         intervalMs: 5 * 60_000,
@@ -312,6 +313,7 @@ export class Agent {
     }
     if (sub === 'off') {
       this.autoMode = false;
+      this.permission.autoMode = false;
       this.scheduler.stopHeartbeat();
       return { response: t('auto.off') };
     }
