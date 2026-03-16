@@ -2,6 +2,8 @@
 
 **Browser-based AI Coding Assistant — Zero Install. Zero Deploy. Zero Config.**
 
+[Live Demo](https://hongxin.github.io/jetbot/) | [GitHub](https://github.com/hongxin/jetbot)
+
 JetBot 是一个完全运行在浏览器中的 AI 编程助手。无需后端服务器、无需部署、无需安装——打开网页即可使用。所有代码在浏览器端通过 JavaScript 解释执行，LLM 调用直接从浏览器 `fetch()` 发送到 API Provider。
 
 ```
@@ -109,7 +111,7 @@ JetBot 是一个完全运行在浏览器中的 AI 编程助手。无需后端服
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-repo/JetBot.git
+git clone https://github.com/hongxin/jetbot.git
 cd JetBot/jetbot
 
 # 安装依赖
@@ -248,6 +250,10 @@ src/
 - **简易**：能简则简，大道至简。6000 行代码实现完整 AI Agent
 - **变易**：拥抱变化，持续演进。模块化架构，每个模块单一职责
 - **不易**：坚守核心，质量为本。参数校验、熔断保护、重复检测
+
+## Author
+
+**Hongxin Zhang** — [hongxin.zhang@gmail.com](mailto:hongxin.zhang@gmail.com) | [github.com/hongxin](https://github.com/hongxin)
 
 ## License
 
