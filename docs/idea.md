@@ -1,27 +1,29 @@
-# JetBot — Project Origin
+# Project Origin
+
+[中文版](idea.zh-CN.md)
 
 > 2026-03-16
 
 ## The Idea
 
-基于 TrueConsole（Rust 实现的 AI Agent）的成功经验，启动 JetBot 项目：
+Building on the success of TrueConsole (an AI Agent implemented in Rust), the JetBot project was born:
 
-- **核心思路**：将 TrueConsole 的 Agent 执行逻辑用 TypeScript 重新实现，编译为 JavaScript，直接在浏览器中运行
-- **关键突破**：无需安装、无需部署——打开网页即用，甚至可在微信浏览器中运行
-- **战略价值**：零门槛使用，便于快速扩展影响力
+- **Core approach**: Reimplement TrueConsole's agent execution logic in TypeScript, compile to JavaScript, and run entirely in the browser.
+- **Key breakthrough**: No installation, no deployment — open a webpage and start using it. Works even inside WeChat's in-app browser.
+- **Strategic value**: Zero barrier to entry enables rapid adoption and distribution.
 
 ## Design References
 
-| Project | What to Learn |
+| Project | Lessons Drawn |
 |---------|---------------|
-| **TrueConsole** | Agent 核心逻辑：Agentic Loop、熔断器、Context Manager、Skill 系统 |
-| **ZeroClaw** | 架构分层思想 |
-| **NanoClaw** | TypeScript 实现参考 |
+| **TrueConsole** | Agent core logic: Agentic Loop, circuit breaker, Context Manager, Skill system |
+| **ZeroClaw** | Layered architecture principles |
+| **NanoClaw** | TypeScript implementation patterns |
 
 ## Core Bet
 
-> 浏览器的能力已经足够承载一个完整的 AI Agent——
-> IndexedDB 做文件系统，fetch 调 LLM API，Canvas 做可视化。
-> 唯一需要的外部依赖是一个 LLM API endpoint。
+> The browser is capable enough to host a full AI Agent —
+> IndexedDB for the file system, fetch for LLM API calls, Canvas for visualization.
+> The only external dependency is an LLM API endpoint.
 
 See [design.md](design.md) for the full feasibility analysis and architecture design.

@@ -1,5 +1,7 @@
 # Architecture
 
+[中文版](architecture.zh-CN.md)
+
 ## Source Structure
 
 ```
@@ -12,7 +14,7 @@ jetbot/src/
 │
 ├── components/            # React UI
 │   ├── cosmos/            # Cosmos View (force-directed canvas)
-│   │   ├── CosmosCanvas.ts    # WebGL-like 2D canvas rendering + force simulation
+│   │   ├── CosmosCanvas.ts    # 2D canvas rendering + force simulation
 │   │   ├── CosmosView.tsx     # React wrapper + interaction handling
 │   │   └── types.ts           # Node, Edge, Viewport types
 │   ├── ChatPanel.tsx      # Chat conversation panel
@@ -96,4 +98,4 @@ Conversation visualization using a custom 2D force simulation on HTML Canvas. No
 
 ### Three-Tier Permission System
 
-Tools are classified as safe/risky/dangerous. Safe tools auto-approve. Risky tools prompt once then remember. Dangerous tools prompt every time. `/auto on` relaxes this for power users.
+Tools are classified as safe, risky, or dangerous. Safe tools auto-approve. Risky tools prompt once then remember the decision. Dangerous tools prompt every time. `/auto on` relaxes these constraints for power users.

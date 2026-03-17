@@ -1,24 +1,21 @@
-# JetBot Design Document
+# Design Document
+
+[中文版](design.zh-CN.md)
 
 > 2026-03-16 | Author: Hongxin Zhang
 
 ## 1. Project Vision
 
-```
-"零门槛、零部署、零配置"
-→ 打开浏览器即用
-→ 微信中也能运行
-→ 一键分享传播
-```
+Zero barrier. Zero deployment. Zero configuration. Open a browser and start using an AI coding assistant. Works even inside WeChat's in-app browser. Share a link to spread it.
 
 ### Target Users
 
 | User Type | Scenario | Value |
 |-----------|----------|-------|
 | **Individuals** | Daily AI assistant | No install, open and use |
-| **Developers** | Rapid prototyping | Reference TrueConsole logic |
+| **Developers** | Rapid prototyping | Leverage TrueConsole's proven patterns |
 | **Enterprise** | Internal tool sharing | Share a link, done |
-| **WeChat Users** | In-app browser | WeChat ecosystem integration |
+| **WeChat Users** | In-app browser | Seamless integration with WeChat ecosystem |
 
 ---
 
@@ -29,27 +26,26 @@
 | Capability | API | Support |
 |-----------|-----|---------|
 | **Storage** | IndexedDB / OPFS | All modern browsers |
-| **File Operations** | File System Access API | Chrome/Edge |
-| **HTTP Requests** | fetch + CORS | Needs proxy |
-| **Background** | Service Worker | Chrome/Edge |
-| **Local Inference** | WebLLM / Transformers.js | Chrome/Edge |
+| **File Operations** | File System Access API | Chrome / Edge |
+| **HTTP Requests** | fetch + CORS | Requires proxy |
+| **Background** | Service Worker | Chrome / Edge |
+| **Local Inference** | WebLLM / Transformers.js | Chrome / Edge |
 | **Crypto** | Web Crypto API | All browsers |
 
-### WeChat Browser Compatibility
+### WeChat Browser
 
-Supported: ES6+, IndexedDB, Service Worker (limited), Web Crypto, fetch API
+Supported: ES6+, IndexedDB, Service Worker (limited), Web Crypto, fetch API.
+Not supported: File System Access API, WebGPU, WebRTC P2P.
 
-Not supported: File System Access API, WebGPU, WebRTC P2P
-
-**Conclusion**: Core features viable across all platforms; advanced features degrade gracefully.
+**Conclusion**: Core features are viable across all platforms; advanced features degrade gracefully.
 
 ### Validated by Open Source
 
-| Project | Stars | Proves |
-|---------|-------|--------|
+| Project | Stars | Demonstrates |
+|---------|-------|-------------|
 | WebLLM | 17.6k | Browser-based LLM inference is viable |
-| Transformers.js | 13k+ | Transformers run in browser |
-| Cherry Studio | 41.6k | Browser AI Agent is viable |
+| Transformers.js | 13k+ | ML models run in the browser |
+| Cherry Studio | 41.6k | Browser-based AI agents are viable |
 
 ---
 
@@ -57,25 +53,28 @@ Not supported: File System Access API, WebGPU, WebRTC P2P
 
 ### CORS Restrictions
 
-LLM APIs don't allow direct browser calls. Solutions:
-- **Dev**: CORS proxy (e.g., allorigins)
-- **Prod**: Cloudflare Workers reverse proxy
+LLM APIs do not allow direct browser calls due to cross-origin restrictions.
+
+- **Development**: Public CORS proxy (e.g., allorigins)
+- **Production**: Cloudflare Workers reverse proxy
 - **Enterprise**: Self-hosted proxy endpoint
-- **User config**: Custom proxy URL in settings
+- **User-facing**: Custom proxy URL configurable in settings
 
 ### File System
 
-Browser can't access local files directly. Solutions:
-- **Primary**: IndexedDB-backed Virtual File System
+Browsers cannot access the local file system directly.
+
+- **Primary**: IndexedDB-backed virtual file system
 - **Enhanced**: File System Access API (Chrome/Edge)
 - **Fallback**: File upload via `<input type="file">`
 - **Export**: Programmatic `<a download>` trigger
 
 ### Shell Commands
 
-Browser can't execute real shell commands. Solution:
-- Built-in command interpreter mapping `ls`, `cat`, `grep`, etc. to VirtualFS operations
-- Sandboxed JavaScript execution for general computation
+Browsers cannot execute real shell commands.
+
+- Built-in interpreter maps `ls`, `cat`, `grep`, etc. to VirtualFS operations
+- General computation runs in a sandboxed JavaScript environment
 
 ---
 
@@ -114,17 +113,17 @@ Browser can't execute real shell commands. Solution:
 
 ## 5. Tech Stack
 
-```yaml
-Frontend:     React 19 + TypeScript
-Styling:      Tailwind CSS 4
-State:        Zustand 5
-Storage:      IndexedDB (idb) + localStorage
-LLM:          OpenAI-compatible REST API (fetch)
-Build:        Vite 8
-Deploy:       Static files → GitHub Pages / Cloudflare / Vercel
-```
+| Component | Choice |
+|-----------|--------|
+| Frontend | React 19 + TypeScript |
+| Styling | Tailwind CSS 4 |
+| State | Zustand 5 |
+| Storage | IndexedDB (idb) + localStorage |
+| LLM | OpenAI-compatible REST API via fetch |
+| Build | Vite 8 |
+| Deploy | Static files — GitHub Pages / Cloudflare / Vercel |
 
-Total dependencies: ~15 (vs. 70+ in comparable projects)
+Total dependencies: ~15 packages (compared to 70+ in similar projects).
 
 ---
 
@@ -134,11 +133,11 @@ Total dependencies: ~15 (vs. 70+ in comparable projects)
 |-----------|--------|----------|----------|-------------|
 | Language | TypeScript | Rust | TypeScript | Rust |
 | Runtime | Browser | Native | Node.js | Native |
-| Deploy difficulty | Zero | Install required | Install required | Install required |
+| Deployment | Zero | Requires install | Requires install | Requires install |
 | File system | Virtual (IndexedDB) | Native | Native | Native |
 | WeChat compatible | Yes | No | No | No |
-| Share via link | Yes | No | No | No |
-| Offline | Partial (Ollama) | Yes | Yes | Yes |
+| Shareable via link | Yes | No | No | No |
+| Offline capable | Partial (Ollama) | Yes | Yes | Yes |
 
 ---
 
@@ -150,7 +149,7 @@ Total dependencies: ~15 (vs. 70+ in comparable projects)
 - Agent core (Agentic Loop, Context Manager, circuit breaker)
 - Virtual file system (IndexedDB)
 - LLM client (OpenAI-compatible)
-- Built-in tools (read/write/search/eval)
+- Built-in tools (read / write / search / eval)
 - Basic UI (chat, input, settings)
 
 ### Phase 2: Feature Complete
@@ -172,4 +171,4 @@ Total dependencies: ~15 (vs. 70+ in comparable projects)
 
 ---
 
-*"大道至简，浏览器即 Agent"*
+*"The simplest path is the truest — the browser is the Agent."*

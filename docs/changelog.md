@@ -1,11 +1,13 @@
 # Changelog
 
+[中文版](changelog.zh-CN.md)
+
 Development history and milestones.
 
 | Commit | Milestone |
 |--------|-----------|
 | `8dd0dc5` | **Initial commit** — Core architecture: Agent, AgenticLoop, ToolRegistry, 9 tools, React UI |
-| `e911ba9` | Ollama local LLM support (no API Key required) |
+| `e911ba9` | Ollama local LLM support (no API key required) |
 | `0571246` | Repository restructure + code quality improvements (shared components, type safety, i18n fixes) |
 | `7088d54` | New skills: decision / security / perf |
 | `d79391e` | ZPower skill system (7 skills based on Five Elements philosophy) |
