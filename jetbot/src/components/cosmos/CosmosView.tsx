@@ -1,10 +1,11 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { useCosmosStore } from '../../store/cosmosStore';
 import { CosmosCanvas } from './CosmosCanvas';
 import { InputBar } from '../InputBar';
 import { useT, type TranslationKey } from '../../lib/i18n';
 import { getNodeHue } from './types';
 import type { CosmosNode } from './types';
+import { marked } from 'marked';
 
 export function CosmosView() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -334,7 +335,7 @@ function NodeCard({
         <button onClick={onClose} className="text-white/40 hover:text-white/80 text-lg leading-none">×</button>
       </div>
 
-      {/* Content */}
+      {/* Content — tool nodes show raw params+result, others render markdown */}
       {node.kind === 'tool' ? (
         <>
           <div className="px-3 py-2 border-b border-white/5">
@@ -351,12 +352,18 @@ function NodeCard({
           </div>
         </>
       ) : (
-        <div className="px-3 py-2">
-          <pre className="text-xs text-white/70 max-h-[250px] overflow-y-auto whitespace-pre-wrap break-words">
-            {node.content || '...'}
-          </pre>
-        </div>
+        <MarkdownContent content={node.content || '...'} />
       )}
     </div>
+  );
+}
+
+function MarkdownContent({ content }: { content: string }) {
+  const html = useMemo(() => marked.parse(content, { async: false }) as string, [content]);
+  return (
+    <div
+      className="cosmos-md px-3 py-2 text-xs text-white/70 max-h-[250px] overflow-y-auto"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   );
 }
