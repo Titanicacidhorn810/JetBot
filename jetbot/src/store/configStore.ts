@@ -10,7 +10,7 @@ export interface ProviderPreset {
 const PRESETS: Record<string, ProviderPreset> = {
   openai: { provider: 'openai', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o' },
   deepseek: { provider: 'deepseek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
-  ollama: { provider: 'ollama', baseUrl: 'http://localhost:11434/v1', model: 'qwen3.5:9b' },
+  ollama: { provider: 'ollama', baseUrl: 'http://localhost:11434/v1', model: 'qwen3.5:27b' },
   custom: { provider: 'custom', baseUrl: '', model: '' },
 };
 
